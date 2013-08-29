@@ -1,8 +1,31 @@
-
+/////////////////////////////////////////////
+// CounterCat                          
+//
+// System Components:
+//   - 1x Parallax Passive Infrared Sensor
+//        http://parallax.com/product/555-28027
+//
+//   - 1x Beefcake Relay Board
+//        https://www.sparkfun.com/products/11042      
+//
+//      uC   |  PIR
+//    -------|------
+//     D2 <<---- Out
+//     +5v|----- Vcc 
+//     GND|----- Gnd    
+//
+//     uC    |  Relay
+//    -------|---------
+//     +5v|----- Vcc 
+//     GND|----- Gnd 
+//     D3<<----- Cntrl
+//     
+/////////////////////////////////////////////
 
 #define BLENDER_PIN 3
 #define SENSOR_PIN 2
 
+//Note that the PIR sensor needs at least 40 seconds to start up. 
 #define WARM_UP_TIME_MS ((unsigned long) 41000)
 #define COOLDOWN_TIME_MS 5000
 #define ACTIVE_TIME_MS 2000
@@ -25,8 +48,6 @@ String state2String[] =
  "cooldown"
 };
 
-
-boolean warmedUp = false;
 
 unsigned long timerStart = 0;
 unsigned long now = 0;
@@ -52,11 +73,6 @@ void loop(void)
 {
   now = millis();
   
-  //if (now % 1000 == 0)
-  //{
-  //   Serial.println("State = " + state2String[currentState]); 
-  //}
- 
    switch (currentState)
     {
   
