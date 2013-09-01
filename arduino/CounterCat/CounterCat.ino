@@ -23,11 +23,11 @@
 /////////////////////////////////////////////
 
 
-#define SENSOR_PIN   2
-#define BLENDER_PIN  3
-#define GREEN_LED_PIN  4
-#define RED_LED_PIN    5
-#define BUTTON_PIN     6
+#define SENSOR_PIN   5
+#define BLENDER_PIN  6
+#define GREEN_LED_PIN  3
+#define RED_LED_PIN    4
+#define BUTTON_PIN     2
 
 //Note that the PIR sensor needs at least 40 seconds to start up. 
 #define WARM_UP_TIME_MS ((unsigned long) 41000)
@@ -36,7 +36,7 @@
 #define WARM_UP_FLICKER 200
 #define ACTIVE_FLICKER 100
 #define COOLDOWN_FLICKER  200
-
+#define BUTTON_DEBOUNCE 500
 //These are the states for our state machine. 
 enum State
 {
@@ -159,6 +159,7 @@ void loop(void)
     {
       Serial.println("Pausing...");
       currentState = S_PAUSED;
+      timerStart = now;
     }
     break;
 
@@ -193,7 +194,7 @@ void loop(void)
   case S_COOLDOWN:
 
     digitalWrite(RED_LED_PIN, LOW);
-   
+    
     if (now % COOLDOWN_FLICKER == 0)
     {
       if (wasHigh)
@@ -220,11 +221,15 @@ void loop(void)
 
     digitalWrite(GREEN_LED_PIN, HIGH);
     digitalWrite(RED_LED_PIN, LOW);
-
-    if (buttonPushed)
+    digitalWrite(BLENDER_PIN, LOW);
+    
+    if (now > (timerStart + BUTTON_DEBOUNCE))
     {
-      Serial.println("Unpaused!");
-      currentState = S_IDLE;          
+      if (buttonPushed)
+      {
+        Serial.println("Unpaused!");
+        currentState = S_IDLE;          
+      }
     }
     break;
   }
