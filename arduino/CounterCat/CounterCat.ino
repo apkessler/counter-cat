@@ -66,6 +66,7 @@ unsigned long timerStart = 0;
 unsigned long now = 0;
 
 int buttonThen;
+int sensorThen;
 boolean wasHigh = false;
 
 ///SETUP//////////////////////////////////////////////////////////////////
@@ -90,6 +91,7 @@ void setup(void)
 
   currentState = S_WARMING_UP;
   buttonThen = 0;
+  sensorThen = 0;
 }
 
 
@@ -98,19 +100,35 @@ void loop(void)
 {
   now = millis();
 
-  //Checked the state of the button.
+  /*
+   * Check the state of the button.
+   */
   boolean buttonPushed = false;
   int buttonNow = digitalRead(BUTTON_PIN);
   if (buttonNow != buttonThen && buttonNow)
   {
     //Button pushed!
-    buttonPushed = true;
+     buttonPushed = true;
   }
-
   buttonThen = buttonNow;
+  
+  
+  /*
+   * Check for a rising edge on the sensor.
+   */
+  boolean sensorRising = false;
+  int sensorNow = digitalRead(SENSOR_PIN);
+  if (sensorNow != sensorThen && sensorNow)
+  {
+    //Sensor rising edge!
+    sensorRising = true;
+  }  
+  sensorThen = sensorNow;
 
 
-  //Act based on current state.
+  /*
+   * Act based on current state.
+   */
   switch (currentState)
   {
 
@@ -148,7 +166,8 @@ void loop(void)
     digitalWrite(RED_LED_PIN, HIGH);
     digitalWrite(GREEN_LED_PIN, LOW);
 
-    if (digitalRead(SENSOR_PIN))
+    //If there's a rising edge on the sensor pin
+    if (sensorRising)
     {
       Serial.println("Movement!");
       currentState = S_ACTIVE; 
