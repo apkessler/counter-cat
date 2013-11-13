@@ -23,11 +23,19 @@
 /////////////////////////////////////////////
 
 
-#define SENSOR_PIN   5
-#define BLENDER_PIN  6
-#define GREEN_LED_PIN  3
+#define SENSOR_1_PIN   13
+#define SENSOR_2_PIN   7
+#define BLENDER_PIN    12
+#define GREEN_LED_PIN  5
 #define RED_LED_PIN    4
 #define BUTTON_PIN     2
+
+//The DIP switches!
+#define SWITCH_1_PIN  11
+#define SWITCH_2_PIN  10
+#define SWITCH_3_PIN  9
+#define SWITCH_4_PIN  8
+
 
 //Note that the PIR sensor needs at least 40 seconds to start up. 
 #define WARM_UP_TIME_MS ((unsigned long) 41000)
@@ -74,10 +82,16 @@ void setup(void)
 {
 
   pinMode(BLENDER_PIN, OUTPUT);
-  pinMode(SENSOR_PIN, INPUT);  
+  pinMode(SENSOR_1_PIN, INPUT);  
+  pinMode(SENSOR_2_PIN, INPUT);  
   pinMode(BUTTON_PIN, INPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
   pinMode(RED_LED_PIN, OUTPUT);
+  
+  pinMode(SWITCH_1_PIN, INPUT);
+  pinMode(SWITCH_2_PIN, INPUT);
+  pinMode(SWITCH_3_PIN, INPUT);
+  pinMode(SWITCH_4_PIN, INPUT);
 
   digitalWrite(BLENDER_PIN, LOW);
   digitalWrite(GREEN_LED_PIN, LOW);
@@ -117,7 +131,7 @@ void loop(void)
    * Check for a rising edge on the sensor.
    */
   boolean sensorRising = false;
-  int sensorNow = digitalRead(SENSOR_PIN);
+  int sensorNow = digitalRead(SENSOR_1_PIN);
   if (sensorNow != sensorThen && sensorNow)
   {
     //Sensor rising edge!
