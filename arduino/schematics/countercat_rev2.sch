@@ -5599,7 +5599,7 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="JP2" library="NickDC2011Breakouts" deviceset="M02" device="5MM" value="AC"/>
 <part name="U$5" library="nick_DC2011" deviceset="5V" device=""/>
 <part name="GND5" library="nick_DC2011" deviceset="GND" device=""/>
-<part name="R6" library="SparkFun-Resistors" deviceset="RESISTOR" device="PTH-1/4W"/>
+<part name="R6" library="SparkFun-Resistors" deviceset="RESISTOR" device="PTH-1/4W" value="10k"/>
 <part name="GND6" library="nick_DC2011" deviceset="GND" device=""/>
 <part name="U$6" library="nick_DC2011" deviceset="5V" device=""/>
 <part name="Y1" library="SparkFun-FreqCtrl" deviceset="RESONATOR" device="PTH" value="16MHz"/>
