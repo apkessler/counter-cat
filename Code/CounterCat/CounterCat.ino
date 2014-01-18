@@ -46,7 +46,7 @@
 #define COOLDOWN_FLICKER  200
 #define BUTTON_DEBOUNCE 500
 
-#define USE_PIR2 true
+#define USE_PIR2 false
 
 //These are the states for our state machine. 
 enum State
@@ -103,7 +103,15 @@ void setup(void)
 
   Serial.begin(9600);
   Serial.println("Starting CounterCat2...");
-
+  if (USE_PIR2)
+  {
+    Serial.println("Using PIR2 as safety.");
+  } 
+  else
+  {
+    Serial.println("Ignoring PIR2.");
+  }
+  
   Serial.println("Warming up...");
   timerStart = millis();
 
@@ -148,14 +156,17 @@ void loop(void)
    * Check for a rising edge on the safety sensor.
    */
   boolean safetyRising = false;
-  int safetyNow = digitalRead(SENSOR_2_PIN);
-  if (safetyNow != safetyThen && safetyNow)
+  if (USE_PIR2)
   {
-    //Sensor rising edge!
-    Serial.println("Safety rising edge.");
-    safetyRising = true;
-  }  
-  safetyThen = safetyNow;
+    int safetyNow = digitalRead(SENSOR_2_PIN);
+    if (safetyNow != safetyThen && safetyNow)
+    {
+      //Sensor rising edge!
+      Serial.println("Safety rising edge.");
+      safetyRising = true;
+    }  
+    safetyThen = safetyNow;
+  }
 
 
   /*
