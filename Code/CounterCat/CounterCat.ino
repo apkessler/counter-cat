@@ -45,6 +45,9 @@
 #define ACTIVE_FLICKER 100
 #define COOLDOWN_FLICKER  200
 #define BUTTON_DEBOUNCE 500
+
+#define USE_PIR2 true
+
 //These are the states for our state machine. 
 enum State
 {
@@ -75,6 +78,7 @@ unsigned long now = 0;
 
 int buttonThen;
 int sensorThen;
+int safetyThen;
 boolean wasHigh = false;
 
 ///SETUP//////////////////////////////////////////////////////////////////
@@ -98,7 +102,7 @@ void setup(void)
   digitalWrite(RED_LED_PIN, LOW);
 
   Serial.begin(9600);
-  Serial.println("Starting CounterCat...");
+  Serial.println("Starting CounterCat2...");
 
   Serial.println("Warming up...");
   timerStart = millis();
@@ -106,6 +110,7 @@ void setup(void)
   currentState = S_WARMING_UP;
   buttonThen = 0;
   sensorThen = 0;
+  safetyThen =0;
 }
 
 
@@ -138,6 +143,19 @@ void loop(void)
     sensorRising = true;
   }  
   sensorThen = sensorNow;
+  
+   /*
+   * Check for a rising edge on the safety sensor.
+   */
+  boolean safetyRising = false;
+  int safetyNow = digitalRead(SENSOR_2_PIN);
+  if (safetyNow != safetyThen && safetyNow)
+  {
+    //Sensor rising edge!
+    Serial.println("Safety rising edge.");
+    safetyRising = true;
+  }  
+  safetyThen = safetyNow;
 
 
   /*
@@ -188,7 +206,7 @@ void loop(void)
       digitalWrite(BLENDER_PIN, HIGH);
       timerStart = now; 
     }
-    else if (buttonPushed)
+    else if (buttonPushed || (safetyRising && USE_PIR2))
     {
       Serial.println("Pausing...");
       currentState = S_PAUSED;
