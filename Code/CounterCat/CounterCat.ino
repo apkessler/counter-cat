@@ -23,6 +23,9 @@
 /////////////////////////////////////////////
 
 
+#define TICKS_PER_MS 7
+#define TICKS_PER_SEC 6900
+
 //These are on the "analog" arduino ports
 #define BUTTON_PIN   A0 //Port C0
 #define BLENDER_PIN  A1 //Port C1
@@ -49,14 +52,14 @@
 
 
 //Note that the PIR sensor needs at least 40 seconds to start up. 
-#define WARM_UP_TIME_MS ((unsigned long) 41000)
-#define COOLDOWN_TIME_MS 5000
-#define ACTIVE_TIME_MS 2000
-#define WARM_UP_FLICKER 200
+#define WARM_UP_TIME ((unsigned long) 41 * TICKS_PER_SEC)
+#define COOLDOWN_TIME ((unsigned long) 5 * TICKS_PER_SEC)
+#define ACTIVE_TIME ((unsigned long) 2 * TICKS_PER_SEC)
+#define WARM_UP_FLICKER 2000
 #define ACTIVE_FLICKER 100
 #define COOLDOWN_FLICKER  200
-#define BUTTON_DEBOUNCE 500
-#define WARM_UP_PRINIT_RATE 100
+#define BUTTON_DEBOUNCE (TICKS_PER_SEC)
+#define WARM_UP_PRINT_RATE ((unsigned long) 1 * TICKS_PER_SEC)
 
 #define EYE_SCANNING_RATE 10 
 
@@ -152,7 +155,7 @@ void setup(void)
   }
   
   Serial.println("Warming up...");
-  timerStart = millis();
+  timerStart = 0;
 
   currentState = S_WARMING_UP;
   buttonThen = 0;
@@ -164,9 +167,8 @@ void setup(void)
 ///LOOP/////////////////////////////////////////////////////////////////////////
 void loop(void)
 {
-  //now = millis();
   now++;
-  
+
   //Step the scanning eye.
   if (now % EYE_SCANNING_RATE == 0)
   {
@@ -222,9 +224,9 @@ void loop(void)
   {
 
   case S_WARMING_UP:
-    if (now % WARM_UP_PRINIT_RATE == 0)
+    if (now % WARM_UP_PRINT_RATE == 0)
     {
-      Serial.println(String(now*100/WARM_UP_TIME_MS, DEC) + "%");
+      Serial.println(String(now*100/WARM_UP_TIME, DEC) + "%");  
     }
 
     if (now % WARM_UP_FLICKER == 0)
@@ -241,7 +243,7 @@ void loop(void)
       }
     }
 
-    if (now > (timerStart + WARM_UP_TIME_MS))
+    if (now > (timerStart + WARM_UP_TIME))
     {
       Serial.println("Warmed up!");
       currentState = S_ARMED;
@@ -255,7 +257,10 @@ void loop(void)
     //Leave the red light on while we're armed
     turnOffAllLEDs();
     digitalWrite(ARMED_LED_PIN, HIGH);
-
+    
+    //Make sure we wait for debouncing.
+    if (now > (timerStart + BUTTON_DEBOUNCE))
+    {
     //If there's a rising edge on the sensor pin
     if (sensorRising)
     {
@@ -270,6 +275,7 @@ void loop(void)
       currentState = S_PAUSED;
       timerStart = now;
     }
+     }
     break;
 
   case S_ACTIVE:
@@ -292,7 +298,7 @@ void loop(void)
     }
 
 
-    if (now > (timerStart + ACTIVE_TIME_MS))
+    if (now > (timerStart + ACTIVE_TIME))
     {
       Serial.println("Done being active!");
       digitalWrite(BLENDER_PIN, LOW);
@@ -304,25 +310,11 @@ void loop(void)
     break;
 
   case S_COOLDOWN:
-
-    turnOffAllLEDs();
     
-    if (now % COOLDOWN_FLICKER == 0)
-    {
-      if (wasHigh)
-      {
-        digitalWrite(COOLDOWN_LED_PIN, LOW);
-        wasHigh = false;
-      }
-      else
-      {
-        digitalWrite(COOLDOWN_LED_PIN, HIGH);
-        wasHigh = true; 
-      }
-
-    }   
-
-    if (now > (timerStart + COOLDOWN_TIME_MS))
+    
+    digitalWrite(COOLDOWN_LED_PIN, HIGH);
+    
+    if (now > (timerStart + COOLDOWN_TIME))
     {
       Serial.println("Done cooling down.");
       currentState = S_ARMED;  
@@ -339,7 +331,8 @@ void loop(void)
       if (buttonPushed)
       {
         Serial.println("Unpaused!");
-        currentState = S_ARMED;          
+        currentState = S_ARMED;      
+        timerStart = now;    
         turnOffAllLEDs();
       }
     }
