@@ -56,6 +56,7 @@
 #define ACTIVE_FLICKER 100
 #define COOLDOWN_FLICKER  200
 #define BUTTON_DEBOUNCE 500
+#define WARM_UP_PRINIT_RATE 100
 
 #define EYE_SCANNING_RATE 10 
 
@@ -163,8 +164,9 @@ void setup(void)
 ///LOOP/////////////////////////////////////////////////////////////////////////
 void loop(void)
 {
-  now = millis();
-
+  //now = millis();
+  now++;
+  
   //Step the scanning eye.
   if (now % EYE_SCANNING_RATE == 0)
   {
@@ -220,7 +222,7 @@ void loop(void)
   {
 
   case S_WARMING_UP:
-    if (now % 1000 == 0)
+    if (now % WARM_UP_PRINIT_RATE == 0)
     {
       Serial.println(String(now*100/WARM_UP_TIME_MS, DEC) + "%");
     }
@@ -344,7 +346,7 @@ void loop(void)
     break;
   }
 
-  delay(1);
+ // delay(1);
 
 }
 
